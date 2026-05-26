@@ -719,7 +719,10 @@
             <!-- Configs List -->
             <% if (data.configs && data.configs.length > 0) { %>
             <div class="configs-section">
-                <h3 class="configs-title">کانفیگ‌های اختصاصی شما</h3>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+                    <h3 class="configs-title" style="margin:0;">کانفیگ‌های شما</h3>
+                    <button class="btn-copy-sm" style="margin:0; background:rgba(47,129,247,0.15); color:#79c0ff; border-color:rgba(47,129,247,0.3);" onclick="copySpecificText(`<%= data.configs.join('\\n').replace(/`/g, '\\`').replace(/\\$/g, '\\\\$') %>`)">کپی همه</button>
+                </div>
                 <div class="configs-list">
                     <% data.configs.forEach((config, index) => { 
                         let protocol = "VPN";

@@ -157,6 +157,10 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const decodedContent = Buffer.from(suburl_content, 'base64').toString('utf-8');
         const configs = decodedContent.split('\n').filter(line => line.trim().length > 0);
 
+        // Sanitize social URLs so empty strings evaluate to null
+        const safeWhatsApp = WHATSAPP_URL && WHATSAPP_URL.trim() !== '' ? WHATSAPP_URL.trim() : null;
+        const safeTelegram = TELEGRAM_URL && TELEGRAM_URL.trim() !== '' ? TELEGRAM_URL.trim() : null;
+
         if (isBrowserRequest(userAgent)) {
             return res.render("sub", {
                 data: {
@@ -167,14 +171,30 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
                     suburl_content,
                     configs,
                     get_backup_link: BACKUP_LINK,
-                    WHATSAPP_URL,
-                    TELEGRAM_URL,
+                    WHATSAPP_URL: safeWhatsApp,
+                    TELEGRAM_URL: safeTelegram,
                     DEFAULT_LANG
                 },
             });
         }
 
-        const combinedContent = [BACKUP_LINK, Buffer.from(suburl_content, 'base64').toString('utf-8')]
+        // Info Config Generation (Dummy Config)
+        const totalGB = trafficData.obj.total === 0 ? "نامحدود" : (trafficData.obj.total / 1073741824).toFixed(2) + " GB";
+        const usedGB = ((trafficData.obj.up + trafficData.obj.down) / 1073741824).toFixed(2) + " GB";
+        let remainingDays = "نامحدود";
+        const expiry = parseInt(trafficData.obj.expiryTime, 10);
+        if (expiry > 0) {
+            if (expiry > Date.now()) {
+                remainingDays = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24)) + " روز";
+            } else {
+                remainingDays = "منقضی شده";
+            }
+        }
+        
+        const dummyRemark = encodeURIComponent(`📊 مصرف: ${usedGB} از ${totalGB} | ⏳ زمان: ${remainingDays}`);
+        const dummyConfig = `vless://00000000-0000-0000-0000-000000000000@1.1.1.1:80?type=tcp&security=none#${dummyRemark}`;
+
+        const combinedContent = [dummyConfig, BACKUP_LINK, ...configs]
             .filter(Boolean)
             .join('\n');
 
