@@ -9,6 +9,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     
     <style>
         :root {
@@ -528,7 +530,6 @@
             padding-right: 8px;
         }
 
-        /* Custom scrollbar for configs list */
         .configs-list::-webkit-scrollbar { width: 6px; }
         .configs-list::-webkit-scrollbar-track { background: rgba(0,0,0,0.1); border-radius: 4px; }
         .configs-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 4px; }
@@ -607,11 +608,148 @@
                 flex-direction: column;
             }
         }
+
+        .announcements-container {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .alert {
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            font-size: 14px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: slideDown 0.4s ease-out;
+        }
+
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .alert svg { width: 20px; height: 20px; fill: currentColor; flex-shrink: 0; }
+        .alert-info { background: rgba(47, 129, 247, 0.15); color: #79c0ff; border-color: rgba(47, 129, 247, 0.3); }
+        .alert-warning { background: rgba(210, 153, 34, 0.15); color: #e3b341; border-color: rgba(210, 153, 34, 0.3); }
+        .alert-danger { background: rgba(248, 81, 73, 0.15); color: #ff7b72; border-color: rgba(248, 81, 73, 0.3); }
+        .alert-success { background: rgba(46, 160, 67, 0.15); color: #56d364; border-color: rgba(46, 160, 67, 0.3); }
+
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(5px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            text-align: center;
+            transform: scale(0.9);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            max-width: 90%;
+            width: 320px;
+        }
+
+        .modal-overlay.show .modal-content {
+            transform: scale(1);
+        }
+
+        .qr-container {
+            background: #fff;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            display: inline-block;
+            margin-bottom: 24px;
+        }
+
+        .modal-close {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+            border: none;
+            padding: 10px 24px;
+            border-radius: var(--radius-md);
+            font-family: var(--font-fa);
+            font-size: 14px;
+            cursor: pointer;
+            transition: var(--transition);
+            width: 100%;
+        }
+
+        .modal-close:hover {
+            background: rgba(255,255,255,0.2);
+        }
+
+        .btn-qr {
+            background: transparent;
+            border: none;
+            color: var(--text-secondary);
+            padding: 6px;
+            cursor: pointer;
+            transition: var(--transition);
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-qr:hover {
+            background: rgba(255,255,255,0.1);
+            color: var(--text-primary);
+        }
+
+        .btn-qr svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
+
+        .config-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
     </style>
 </head>
 <body>
 
     <div class="container">
+        <% if (data.ANNOUNCEMENTS && data.ANNOUNCEMENTS.length > 0) { %>
+        <div class="announcements-container">
+            <% data.ANNOUNCEMENTS.forEach(ann => { 
+                let iconPath = "M11 15h2v2h-2v-2zm0-8h2v6h-2V7zm.99-5C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z";
+                if (ann.type === 'danger') iconPath = "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z";
+                if (ann.type === 'success') iconPath = "M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z";
+            %>
+            <div class="alert alert-<%= ann.type %>">
+                <svg viewBox="0 0 24 24"><path d="<%= iconPath %>"/></svg>
+                <span><%= ann.message %></span>
+            </div>
+            <% }); %>
+        </div>
+        <% } %>
+
         <div class="glass-card">
             <div class="header">
                 <div class="avatar"><%= data.email.substring(0, 2) %></div>
@@ -685,7 +823,6 @@
                 </div>
             </div>
 
-            <!-- Apps Buttons -->
             <div class="import-buttons">
                 <div class="import-col">
                     <button class="btn-import" onclick="toggleDropdown('android-menu')">
@@ -716,7 +853,6 @@
                 </div>
             </div>
 
-            <!-- Configs List -->
             <% if (data.configs && data.configs.length > 0) { %>
             <div class="configs-section">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
@@ -728,7 +864,6 @@
                         let protocol = "VPN";
                         try { protocol = config.split('://')[0].toUpperCase(); } catch(e) {}
                         let configName = `کانفیگ شماره ${index + 1}`;
-                        // Extract name from # hash if exists
                         try { if (config.includes('#')) { configName = decodeURIComponent(config.split('#').pop()); } } catch(e) {}
                     %>
                     <div class="config-item">
@@ -736,7 +871,12 @@
                             <span class="config-badge"><%= protocol %></span>
                             <span class="config-name"><%= configName %></span>
                         </div>
-                        <button class="btn-copy-sm" onclick="copySpecificText('<%= config.replace(/'/g, "\\'") %>')">کپی</button>
+                        <div class="config-actions">
+                            <button class="btn-qr" onclick="showQR('<%= config %>')" title="نمایش QR Code">
+                                <svg viewBox="0 0 24 24"><path d="M3 11h8V3H3v8zm2-6h4v4H5V5zm8-2v8h8V3h-8zm6 6h-4V5h4v4zM3 21h8v-8H3v8zm2-6h4v4H5v-4zm13-2h-2v2h-2v-2h-2v2h-2v-2h-2v2h-2v2h2v-2h2v2h2v-2h2v2h2v-2h2v2h-2v2h2v-2h2v2h2v-2h-2v-2h-2v-2z"/></svg>
+                            </button>
+                            <button class="btn-copy-sm" onclick="copySpecificText('<%= config.replace(/'/g, "\\'") %>')">کپی</button>
+                        </div>
                     </div>
                     <% }); %>
                 </div>
@@ -766,7 +906,40 @@
         لینک با موفقیت کپی شد!
     </div>
 
+    <!-- QR Modal -->
+    <div id="qrModal" class="modal-overlay" onclick="closeQR(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <h3 style="margin: 0 0 16px 0; font-size: 16px;">اسکن با گوشی دوم</h3>
+            <div id="qrcode" class="qr-container"></div>
+            <button class="modal-close" onclick="closeQR(null)">بستن</button>
+        </div>
+    </div>
+
     <script>
+        let qrcode = null;
+
+        function showQR(text) {
+            const modal = document.getElementById('qrModal');
+            const qrContainer = document.getElementById('qrcode');
+            qrContainer.innerHTML = ''; // clear previous
+            
+            qrcode = new QRCode(qrContainer, {
+                text: text,
+                width: 220,
+                height: 220,
+                colorDark : "#000000",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.M
+            });
+
+            modal.classList.add('show');
+        }
+
+        function closeQR(e) {
+            if (e && e.target !== document.getElementById('qrModal')) return;
+            document.getElementById('qrModal').classList.remove('show');
+        }
+
         function copyUrl() {
             const input = document.getElementById('subUrl');
             input.select();

@@ -56,8 +56,27 @@ const {
     Backup_link: BACKUP_LINK = '',
     TOTP_SECRET = '',
     TWO_FACTOR = 'false',
-    API_TOKEN = ''
+    API_TOKEN = '',
+    LOW_DATA_WARNING_MB = '0',
+    LOW_TIME_WARNING_DAYS = '0',
+    ANNOUNCEMENTS = ''
 } = config;
+
+// Parse announcements
+// Format: color:message|color:message
+let parsedAnnouncements = [];
+if (ANNOUNCEMENTS && ANNOUNCEMENTS.trim() !== '') {
+    const parts = ANNOUNCEMENTS.split('|');
+    parts.forEach(part => {
+        const [type, ...msgParts] = part.split(':');
+        if (type && msgParts.length > 0) {
+            parsedAnnouncements.push({
+                type: type.trim(),
+                message: msgParts.join(':').trim()
+            });
+        }
+    });
+}
 
 const convertToJalali = (timestamp) => {
     const date = new Date(timestamp);
@@ -173,7 +192,8 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
                     get_backup_link: BACKUP_LINK,
                     WHATSAPP_URL: safeWhatsApp,
                     TELEGRAM_URL: safeTelegram,
-                    DEFAULT_LANG
+                    DEFAULT_LANG,
+                    ANNOUNCEMENTS: parsedAnnouncements
                 },
             });
         }
@@ -194,7 +214,25 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const dummyRemark = encodeURIComponent(`📊 ${usedGB} / ${totalGB} | ⏳ ${remainingDays}`);
         const dummyConfig = `vless://00000000-0000-0000-0000-000000000000@1.1.1.1:80?type=tcp&security=none#${dummyRemark}`;
 
-        const combinedContent = [dummyConfig, BACKUP_LINK, ...configs]
+        // Warnings Generation
+        let warningConfigs = [];
+        const lowDataMB = parseInt(LOW_DATA_WARNING_MB, 10) || 0;
+        const remainingBytes = trafficData.obj.total - (trafficData.obj.up + trafficData.obj.down);
+        if (lowDataMB > 0 && trafficData.obj.total > 0 && remainingBytes > 0 && remainingBytes <= (lowDataMB * 1024 * 1024)) {
+            const dataWarningRemark = encodeURIComponent(`⚠️ هشدار: حجم شما رو به اتمام است!`);
+            warningConfigs.push(`vless://00000000-0000-0000-0000-000000000001@1.1.1.1:80?type=tcp&security=none#${dataWarningRemark}`);
+        }
+
+        const lowTimeDays = parseInt(LOW_TIME_WARNING_DAYS, 10) || 0;
+        if (lowTimeDays > 0 && expiry > Date.now()) {
+            const remainingDaysNumber = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
+            if (remainingDaysNumber >= 0 && remainingDaysNumber <= lowTimeDays) {
+                const timeWarningRemark = encodeURIComponent(`⏳ هشدار: تنها ${remainingDaysNumber} روز تا پایان اشتراک مانده!`);
+                warningConfigs.push(`vless://00000000-0000-0000-0000-000000000002@1.1.1.1:80?type=tcp&security=none#${timeWarningRemark}`);
+            }
+        }
+
+        const combinedContent = [dummyConfig, ...warningConfigs, BACKUP_LINK, ...configs]
             .filter(Boolean)
             .join('\n');
 
