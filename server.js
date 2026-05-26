@@ -29,8 +29,15 @@ const loadConfig = () => {
     return fs.readFileSync(configFile, "utf-8")
         .split("\n")
         .reduce((acc, line) => {
-            const [key, value] = line.split("=").map(item => item.trim());
-            if (key && value) acc[key] = value;
+            const separatorIndex = line.indexOf('=');
+            if (separatorIndex !== -1) {
+                const key = line.substring(0, separatorIndex).trim();
+                let value = line.substring(separatorIndex + 1).trim();
+                if ((value.startsWith('"') && value.endsWith('"')) || (value.startsWith("'") && value.endsWith("'"))) {
+                    value = value.substring(1, value.length - 1);
+                }
+                if (key) acc[key] = value;
+            }
             return acc;
         }, {});
 };
