@@ -63,17 +63,25 @@ const {
 } = config;
 
 // Parse announcements
-// Format: color:message|color:message
+// Format: type:date:message|type:message
 let parsedAnnouncements = [];
 if (ANNOUNCEMENTS && ANNOUNCEMENTS.trim() !== '') {
     const parts = ANNOUNCEMENTS.split('|');
     parts.forEach(part => {
-        const [type, ...msgParts] = part.split(':');
-        if (type && msgParts.length > 0) {
-            parsedAnnouncements.push({
-                type: type.trim(),
-                message: msgParts.join(':').trim()
-            });
+        const subParts = part.split(':');
+        if (subParts.length >= 2) {
+            const type = subParts[0].trim();
+            let date = '';
+            let message = '';
+            
+            if (subParts.length >= 3 && /^[\d/.-]{5,15}$/.test(subParts[1].trim())) {
+                date = subParts[1].trim();
+                message = subParts.slice(2).join(':').trim();
+            } else {
+                message = subParts.slice(1).join(':').trim();
+            }
+            
+            parsedAnnouncements.push({ type, date, message });
         }
     });
 }
