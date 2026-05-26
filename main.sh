@@ -11,15 +11,32 @@ SERVICE_FILE="/etc/systemd/system/DVHOST_TEMPLATE.service"
 VERSION='1.0.3'
 [[ $EUID -ne 0 ]] && echo -e "${RED}Fatal error: ${plain} Please run this script with root privilege \n " && exit 1
 
-install_jq() {
-    if ! command -v jq &> /dev/null; then
+set_proxy() {
+    echo -e "${YELLOW}Do you want to use a proxy for the installation process? (y/n) [n]: ${NC}"
+    read -r use_proxy
+    if [[ "$use_proxy" =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Enter your proxy URL (e.g., http://127.0.0.1:2080): ${NC}"
+        read -r proxy_url
+        if [ -n "$proxy_url" ]; then
+            export http_proxy="$proxy_url"
+            export https_proxy="$proxy_url"
+            export all_proxy="$proxy_url"
+            export HTTP_PROXY="$proxy_url"
+            export HTTPS_PROXY="$proxy_url"
+            echo -e "${GREEN}Proxy environment variables set to $proxy_url${NC}"
+        fi
+    fi
+}
+
+install_prerequisites() {
+    if ! command -v jq &> /dev/null || ! command -v curl &> /dev/null || ! command -v unzip &> /dev/null; then
         if command -v apt-get &> /dev/null; then
-            echo -e "${RED}jq is not installed. Installing...${NC}"
+            echo -e "${RED}jq, curl or unzip is not installed. Installing...${NC}"
             sleep 1
-            sudo apt-get update
-            sudo apt-get install -y jq
+            sudo -E apt-get update
+            sudo -E apt-get install -y jq curl unzip
         else
-            echo -e "${RED}Error: Unsupported package manager. Please install jq manually.${NC}\n"
+            echo -e "${RED}Error: Unsupported package manager. Please install jq, curl and unzip manually.${NC}\n"
             read -p "Press any key to continue..."
             exit 1
         fi
@@ -27,7 +44,8 @@ install_jq() {
 }
 
 loader(){
-    install_jq
+    set_proxy
+    install_prerequisites
     SERVER_IP=$(hostname -I | awk '{print $1}')
     SERVER_COUNTRY=$(curl -sS "http://ip-api.com/json/$SERVER_IP" | jq -r '.country')
     SERVER_ISP=$(curl -sS "http://ip-api.com/json/$SERVER_IP" | jq -r '.isp')
@@ -36,20 +54,53 @@ loader(){
 install_dependencies() {
     echo "Installing Node.js and required tools..."
     curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-    sudo apt update
-    sudo apt install -y nodejs git
+    sudo -E apt update
+    sudo -E apt install -y nodejs git
 }
 
 clone_project() {
-    echo "Cloning the project to $PROJECT_DIR..."
+    echo "Downloading the project to $PROJECT_DIR..."
+    
+    if [ -f "$PROJECT_DIR/dvhost.config" ]; then
+        sudo cp "$PROJECT_DIR/dvhost.config" /tmp/dvhost.config.bak
+        echo -e "${GREEN}dvhost.config backed up successfully.${NC}"
+    fi
+
     sudo rm -rf "$PROJECT_DIR"
-    sudo git clone https://github.com/dev-ir/xui-subscription-template.git "$PROJECT_DIR"
+    sudo mkdir -p "$PROJECT_DIR"
+    
+    ZIP_URL="https://github.com/Selin2005/XUI-Subscription-Template/archive/refs/heads/master.zip"
+    MIRROR_URL="https://mirror.ghproxy.com/https://github.com/Selin2005/XUI-Subscription-Template/archive/refs/heads/master.zip"
+    
+    echo "Downloading zip file via curl..."
+    if ! sudo -E curl -L -o /tmp/xui-template.zip "$ZIP_URL"; then
+        echo -e "${YELLOW}Direct download failed. Trying GitHub Mirror...${NC}"
+        if ! sudo -E curl -L -o /tmp/xui-template.zip "$MIRROR_URL"; then
+            echo -e "${RED}Failed to download the repository zip. Please check your proxy or internet connection.${NC}"
+            exit 1
+        fi
+    fi
+    
+    echo "Extracting zip file..."
+    sudo unzip -q -o /tmp/xui-template.zip -d /tmp/
+    sudo mv /tmp/XUI-Subscription-Template-master/* "$PROJECT_DIR"/
+    sudo rm -rf /tmp/XUI-Subscription-Template-master /tmp/xui-template.zip
+    
+    if [ -f "/tmp/dvhost.config.bak" ]; then
+        sudo mv /tmp/dvhost.config.bak "$PROJECT_DIR/dvhost.config"
+        echo -e "${GREEN}dvhost.config restored successfully.${NC}"
+    fi
+
     cd "$PROJECT_DIR" || exit
 }
 
 install_project_dependencies() {
     echo "Installing project dependencies..."
     cd "$PROJECT_DIR" || exit
+    if [ -n "$http_proxy" ]; then
+        npm config set proxy $http_proxy
+        npm config set https-proxy $https_proxy
+    fi
     npm install
 }
 
@@ -86,6 +137,17 @@ remove_project() {
     sudo systemctl daemon-reload
 }
 
+update_project() {
+    echo "Updating the project..."
+    clone_project
+    install_project_dependencies
+    sudo systemctl restart DVHOST_TEMPLATE
+    clear
+    echo "+---------------------------------------+"
+    echo -e "| ${YELLOW}Update completed successfully! ${NC} |"
+    echo "+---------------------------------------+"
+}
+
 edit_config_file(){
 
     nano /opt/DVHOST/dvhost.config
@@ -118,6 +180,7 @@ menu(){
     echo -e "${YELLOW}|  1  - Install XUI Subscription Template"
     echo -e "|  2  - Edit Configuation"
     echo -e "|  3  - Unistall"
+    echo -e "|  4  - Update XUI Subscription Template"
     echo -e "|  0  - Exit${NC}"
     echo "+-----------------------------------------------------------------------------------------------+"                                        
     
@@ -137,6 +200,7 @@ menu(){
             ;;
             2) edit_config_file ;;
             3) remove_project ;;
+            4) update_project ;;
             0)
                 echo -e "${GREEN}Exiting program...${NC}"
                 exit 0

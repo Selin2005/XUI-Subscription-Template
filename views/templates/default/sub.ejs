@@ -1,806 +1,575 @@
 <!DOCTYPE html>
-<html lang="fa">
-
+<html lang="fa" dir="rtl">
 <head>
-    <title>User information : <%= data.email %></title>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-    <meta name="theme-color" content="#1c1f30">
-    <link rel="icon" type="image/x-icon" href="assets/img/icons/favicon.ico">
-    <link rel="icon" type="image/png" sizes="32x32" href="assets/img/icons/favicon.ico" media="(prefers-color-scheme: light)">
-    <link href="https://cdn.jsdelivr.net/npm/yekan-font@1.0.0/css/yekan-font.min.css" rel="stylesheet">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://ios.v4b.top/assets/css/main.css?ver=17374638191438" rel="stylesheet">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اطلاعات اشتراک - <%= data.email %></title>
+    
+    <!-- Google Fonts: Vazirmatn & Roboto -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&family=Vazirmatn:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
     <style>
         :root {
-            --bg-1: #0f1720;
-            --bg-2: #11151b;
-            --glass-1: rgba(255, 255, 255, 0.04);
-            --glass-2: rgba(255, 255, 255, 0.02);
-            --accent: #4cc9f0;
-            --accent-2: #6be39b;
-            --gold: #ffd24a;
-            --muted: #bec5cc;
-            --card: rgba(255, 255, 255, 0.03);
-            --radius: 16px;
-            --scrollbar-width: 8px;
-            --scrollbar-thumb: rgba(76, 201, 240, 0.3);
-            --scrollbar-thumb-hover: rgba(76, 201, 240, 0.5);
-            --scrollbar-track: rgba(255, 255, 255, 0.02);
+            --bg-color: #0d1117;
+            --card-bg: rgba(22, 27, 34, 0.7);
+            --card-border: rgba(48, 54, 61, 0.8);
+            --text-primary: #e6edf3;
+            --text-secondary: #8b949e;
+            --accent-blue: #2f81f7;
+            --accent-blue-hover: #388bfd;
+            --accent-green: #3fb950;
+            --accent-red: #f85149;
+            --font-fa: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-en: 'Roboto', -apple-system, BlinkMacSystemFont, sans-serif;
+            --radius-xl: 24px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
+            --radius-sm: 8px;
+            --shadow-card: 0 12px 32px rgba(0,0,0,0.4);
+            --shadow-glow: 0 0 20px rgba(47, 129, 247, 0.15);
+            --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
 
-        *,
-        *::before,
-        *::after {
-            box-sizing: border-box;
-        }
-
-        /* Custom Scrollbar - Webkit (Chrome, Edge, Safari) */
-        ::-webkit-scrollbar {
-            width: var(--scrollbar-width);
-            height: var(--scrollbar-width);
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-            border-radius: 10px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 10px;
-            transition: background 0.2s ease;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--scrollbar-thumb-hover);
-        }
-
-        ::-webkit-scrollbar-corner {
-            background: transparent;
-        }
-
-        /* Custom Scrollbar - Firefox */
-        * {
-            scrollbar-width: thin;
-            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-        }
-
-        html {
-            scroll-behavior: smooth;
-        }
-
-        html,
         body {
-            height: 100%;
             margin: 0;
             padding: 0;
-            direction: rtl;
-            font-family: "Yekan", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Tahoma", "Arial", sans-serif;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            font-feature-settings: "kern" 1;
-            text-rendering: optimizeLegibility;
-            background: radial-gradient(800px 400px at 10% 10%, rgba(76, 201, 240, 0.05), transparent 8%),
-                        linear-gradient(180deg, var(--bg-1), var(--bg-2));
-            color: #e6eef3;
-            line-height: 1.6;
-            letter-spacing: 0.01em;
-        }
-
-        body {
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: var(--font-fa);
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            background-image: 
+                radial-gradient(circle at 15% 50%, rgba(47, 129, 247, 0.08), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(63, 185, 80, 0.05), transparent 25%);
+            background-attachment: fixed;
         }
 
         .container {
-            max-width: 900px;
-            width: min(900px, 94%);
-            max-height: calc(100vh - 40px);
-            margin: 64px auto;
-            padding: 34px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-            overflow: auto;
-            transform: translateY(0);
-            scrollbar-width: thin;
-            scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
-        }
-
-        .container::-webkit-scrollbar {
-            width: var(--scrollbar-width);
-        }
-
-        .container::-webkit-scrollbar-track {
-            background: var(--scrollbar-track);
-            border-radius: 10px;
-        }
-
-        .container::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 10px;
-        }
-
-        .container::-webkit-scrollbar-thumb:hover {
-            background: var(--scrollbar-thumb-hover);
-        }
-
-        .logo {
-            width: 120px;
-            height: 120px;
-            border-radius: 999px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(135deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.12));
-            box-shadow: 0 10px 30px rgba(2, 6, 23, 0.7),
-                        0 0 40px rgba(76, 201, 240, 0.06);
-            border: 1px solid rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(6px) saturate(120%);
-            transition: transform 0.28s cubic-bezier(0.2, 0.9, 0.2, 1);
-        }
-
-        .logo:hover {
-            transform: translateY(-6px) rotate(-6deg);
-        }
-
-        .logo img {
-            border-radius: 100%;
-            width: 64%;
-            height: 64%;
-            object-fit: contain;
-            filter: drop-shadow(0 6px 18px rgba(0, 0, 0, 0.55));
-        }
-
-        h3 {
-            margin: 0;
-            color: var(--gold);
-            font-weight: 700;
-            font-size: 22px;
-            line-height: 1.4;
-            text-align: center;
-            text-shadow: 0 6px 18px rgba(0, 0, 0, 0.6);
-            letter-spacing: 0.02em;
-            font-feature-settings: "kern" 1;
-        }
-
-        .info-box {
             width: 100%;
-            background: linear-gradient(180deg, 
-                        rgba(255, 255, 255, 0.05) 0%,
-                        rgba(255, 255, 255, 0.02) 50%,
-                        rgba(0, 0, 0, 0.1) 100%);
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                        0 0 0 1px rgba(255, 255, 255, 0.05) inset,
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(12px) saturate(150%);
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-        }
-
-        .info-box:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5),
-                        0 0 0 1px rgba(255, 255, 255, 0.08) inset,
-                        inset 0 1px 0 rgba(255, 255, 255, 0.12);
-        }
-
-        .info-box + .info-box {
-            margin-top: 12px;
-        }
-
-        .copy-container {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            padding: 12px;
-            border-radius: 12px;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.015), rgba(0, 0, 0, 0.06));
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            transition: box-shadow 0.18s ease, transform 0.12s ease;
-        }
-
-        .copy-container:focus-within {
-            box-shadow: 0 8px 28px rgba(76, 201, 240, 0.08);
-            transform: translateY(-3px);
-        }
-
-        #copy-textarea {
-            width: 100%;
-            height: 48px;
-            max-height: 80px;
-            resize: none;
-            border: 0;
-            outline: none;
-            background: transparent;
-            color: #d0d8e0;
-            font-size: 14px;
-            font-family: "SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", "Consolas", monospace;
-            direction: ltr;
-            padding: 6px 10px;
-            border-radius: 8px;
-            overflow: auto;
-            line-height: 1.5;
-            letter-spacing: 0.01em;
-            scrollbar-width: thin;
-            scrollbar-color: var(--scrollbar-thumb) transparent;
-        }
-
-        #copy-textarea::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-
-        #copy-textarea::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        #copy-textarea::-webkit-scrollbar-thumb {
-            background: var(--scrollbar-thumb);
-            border-radius: 3px;
-        }
-
-        #copy-textarea::-webkit-scrollbar-thumb:hover {
-            background: var(--scrollbar-thumb-hover);
-        }
-
-        .copy-icon {
-            width: 50px;
-            height: 50px;
-            min-width: 50px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 12px;
-            cursor: pointer;
-            transition: transform 0.14s ease, box-shadow 0.12s ease;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.06));
-            border: 1px solid rgba(255, 255, 255, 0.02);
-            box-shadow: 0 8px 22px rgba(2, 6, 15, 0.6);
-        }
-
-        .copy-icon i {
-            color: var(--muted);
-            font-size: 16px;
-        }
-
-        .copy-icon:active {
-            transform: scale(0.98);
-        }
-
-        .info-item {
-            display: flex;
-            gap: 16px;
-            align-items: center;
-            padding: 18px 20px;
-            border-radius: 16px;
-            background: linear-gradient(135deg,
-                        rgba(255, 255, 255, 0.03) 0%,
-                        rgba(255, 255, 255, 0.01) 50%,
-                        rgba(0, 0, 0, 0.05) 100%);
-            border: 1px solid rgba(255, 255, 255, 0.06);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            max-width: 520px;
+            padding: 24px;
+            box-sizing: border-box;
             position: relative;
-            overflow: hidden;
-            animation: fadeInUp 0.5s ease-out backwards;
+            z-index: 10;
         }
 
-        .info-item:nth-child(1) { animation-delay: 0.1s; }
-        .info-item:nth-child(2) { animation-delay: 0.2s; }
-        .info-item:nth-child(3) { animation-delay: 0.3s; }
-        .info-item:nth-child(4) { animation-delay: 0.4s; }
+        .glass-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-xl);
+            padding: 36px 32px;
+            box-shadow: var(--shadow-card), var(--shadow-glow);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            animation: fadeInScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: scale(0.96) translateY(10px);
+        }
 
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+        @keyframes fadeInScale {
             to {
                 opacity: 1;
-                transform: translateY(0);
+                transform: scale(1) translateY(0);
             }
         }
 
-        .info-item::before {
+        .header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+
+        .avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #2f81f7 0%, #8957e5 100%);
+            border-radius: 50%;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            font-weight: 800;
+            color: white;
+            margin-bottom: 16px;
+            box-shadow: 0 8px 16px rgba(47, 129, 247, 0.25);
+            text-transform: uppercase;
+            font-family: var(--font-en);
+            border: 2px solid rgba(255,255,255,0.1);
+        }
+
+        .title {
+            font-size: 26px;
+            font-weight: 800;
+            margin: 0;
+            color: #ffffff;
+            letter-spacing: -0.5px;
+            font-family: var(--font-en);
+        }
+
+        .subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+            margin-top: 8px;
+            font-weight: 500;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            margin-top: 16px;
+            border: 1px solid transparent;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .status-active {
+            background-color: rgba(46, 160, 67, 0.15);
+            color: var(--accent-green);
+            border-color: rgba(46, 160, 67, 0.4);
+        }
+
+        .status-inactive {
+            background-color: rgba(248, 81, 73, 0.15);
+            color: var(--accent-red);
+            border-color: rgba(248, 81, 73, 0.4);
+        }
+
+        .status-badge::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-left: 8px;
+        }
+
+        .status-active::before {
+            background-color: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
+        }
+
+        .status-inactive::before {
+            background-color: var(--accent-red);
+            box-shadow: 0 0 10px var(--accent-red);
+        }
+
+        .copy-section {
+            background-color: rgba(1, 4, 9, 0.6);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 6px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 32px;
+            position: relative;
+            transition: var(--transition);
+        }
+
+        .copy-section:hover, .copy-section:focus-within {
+            border-color: rgba(47, 129, 247, 0.6);
+            box-shadow: 0 0 0 2px rgba(47, 129, 247, 0.2);
+        }
+
+        .copy-input {
+            background: transparent;
+            border: none;
+            color: var(--text-primary);
+            font-family: var(--font-en);
+            font-size: 14px;
+            padding: 14px 16px;
+            flex-grow: 1;
+            outline: none;
+            direction: ltr;
+            text-align: left;
+            width: 100%;
+        }
+
+        .copy-input::selection {
+            background: rgba(47, 129, 247, 0.3);
+        }
+
+        .copy-btn {
+            background: linear-gradient(180deg, rgba(48, 54, 61, 1), rgba(33, 38, 45, 1));
+            color: var(--text-primary);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-sm);
+            padding: 12px 24px;
+            font-family: var(--font-fa);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            white-space: nowrap;
+            margin-left: 4px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .copy-btn:hover {
+            background: var(--text-primary);
+            color: var(--bg-color);
+            border-color: var(--text-primary);
+        }
+
+        .copy-btn:active {
+            transform: scale(0.96);
+        }
+
+        .grid-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background-color: rgba(255, 255, 255, 0.02);
+            border: 1px solid var(--card-border);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            text-align: center;
+            transition: var(--transition);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
             content: '';
             position: absolute;
             top: 0;
             left: 0;
-            right: 0;
+            width: 100%;
             height: 1px;
-            background: linear-gradient(90deg,
-                        transparent,
-                        rgba(76, 201, 240, 0.3),
-                        transparent);
-            opacity: 0;
-            transition: opacity 0.25s ease;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
         }
 
-        .info-item:hover {
-            transform: translateY(-3px);
-            background: linear-gradient(135deg,
-                        rgba(255, 255, 255, 0.05) 0%,
-                        rgba(255, 255, 255, 0.02) 50%,
-                        rgba(0, 0, 0, 0.08) 100%);
-            border-color: rgba(76, 201, 240, 0.2);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
-                        0 0 0 1px rgba(76, 201, 240, 0.1) inset;
+        .stat-card:hover {
+            background-color: rgba(255, 255, 255, 0.04);
+            border-color: rgba(139, 148, 158, 0.4);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
         }
 
-        .info-item:hover::before {
-            opacity: 1;
-        }
-
-        .info-item i {
-            width: 56px;
-            height: 56px;
-            min-width: 56px;
-            border-radius: 14px;
+        .stat-icon {
+            width: 40px;
+            height: 40px;
+            margin: 0 auto 12px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
-            color: var(--accent);
-            background: linear-gradient(135deg,
-                        rgba(76, 201, 240, 0.15) 0%,
-                        rgba(107, 227, 155, 0.1) 100%);
-            border: 1px solid rgba(76, 201, 240, 0.2);
-            box-shadow: 0 4px 12px rgba(76, 201, 240, 0.15),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
+        }
+        
+        .stat-card:nth-child(1) .stat-icon {
+            background-color: rgba(137, 87, 229, 0.15);
+            color: #d2a8ff;
+        }
+        
+        .stat-card:nth-child(2) .stat-icon {
+            background-color: rgba(47, 129, 247, 0.15);
+            color: #79c0ff;
         }
 
-        .info-item:hover i {
-            transform: scale(1.05) rotate(2deg);
-            background: linear-gradient(135deg,
-                        rgba(76, 201, 240, 0.2) 0%,
-                        rgba(107, 227, 155, 0.15) 100%);
-            box-shadow: 0 6px 16px rgba(76, 201, 240, 0.25),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        .stat-icon svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
-        .info-item p {
-            margin: 0;
-            flex: 1;
-            color: #e8eef3;
-            font-size: 15px;
-            line-height: 1.7;
-            letter-spacing: 0.01em;
+        .stat-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
             font-weight: 500;
         }
 
-        .info-item p small {
-            color: var(--muted);
-            display: block;
-            margin-top: 4px;
-            font-size: 13px;
-            line-height: 1.6;
-            letter-spacing: 0.01em;
-            opacity: 0.9;
-            font-weight: 400;
-        }
-
-        .gb-value {
-            direction: ltr;
-            display: inline-block;
-            unicode-bidi: embed;
-            font-family: "SF Mono", "Monaco", "Cascadia Code", "Roboto Mono", "Consolas", monospace;
-            font-weight: 600;
-            color: #4cc9f0;
-            letter-spacing: 0.03em;
-            padding: 2px 8px;
-            border-radius: 6px;
-            background: rgba(76, 201, 240, 0.1);
-            border: 1px solid rgba(76, 201, 240, 0.2);
-            transition: all 0.2s ease;
-        }
-
-        .info-item:hover .gb-value {
-            background: rgba(76, 201, 240, 0.15);
-            border-color: rgba(76, 201, 240, 0.3);
-            color: #5dd0f5;
-            transform: scale(1.02);
-        }
-
-        .action-buttons {
-            width: 100%;
+        .stat-value {
+            font-size: 24px;
+            font-weight: 800;
+            color: #ffffff;
+            font-family: var(--font-en);
             display: flex;
-            gap: 14px;
+            align-items: baseline;
             justify-content: center;
-            flex-wrap: wrap;
-            margin-top: 6px;
+            gap: 4px;
         }
 
-        .action-btn {
+        .stat-unit {
+            font-size: 13px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            font-family: var(--font-fa);
+        }
+
+        .progress-container {
+            width: 100%;
+            height: 6px;
+            background-color: rgba(255,255,255,0.08);
+            border-radius: 99px;
+            margin-top: 16px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #2f81f7, #79c0ff);
+            transition: width 1.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+            width: 0%;
+            box-shadow: 0 0 10px rgba(47, 129, 247, 0.5);
+        }
+        
+        .progress-bar.danger {
+            background: linear-gradient(90deg, #da3633, #ff7b72);
+            box-shadow: 0 0 10px rgba(218, 54, 51, 0.5);
+        }
+
+        .action-links {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+        }
+
+        .btn-link {
             display: inline-flex;
             align-items: center;
-            gap: 10px;
-            padding: 12px 20px;
-            border-radius: 999px;
-            color: white;
+            justify-content: center;
+            padding: 14px 24px;
+            border-radius: var(--radius-md);
             text-decoration: none;
             font-weight: 600;
-            font-size: 15px;
-            letter-spacing: 0.02em;
-            line-height: 1.4;
-            box-shadow: 0 12px 34px rgba(3, 7, 18, 0.6);
-            transition: transform 0.14s ease, box-shadow 0.14s ease;
-            border: 0;
+            font-size: 14px;
+            transition: var(--transition);
+            flex: 1;
+            gap: 10px;
+            box-shadow: inset 0 1px 0 rgba(255,255,255,0.05);
         }
 
-        .action-btn i {
-            font-size: 16px;
-            opacity: 0.95;
-        }
-
-        .action-btn:hover {
-            transform: translateY(-6px);
+        .btn-link svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
         }
 
         .btn-telegram {
-            background: linear-gradient(90deg, #3aa0ff 0%, #0e66d6 100%);
+            background-color: rgba(47, 129, 247, 0.12);
+            color: #58a6ff;
+            border: 1px solid rgba(47, 129, 247, 0.3);
+        }
+
+        .btn-telegram:hover {
+            background-color: rgba(47, 129, 247, 0.25);
+            border-color: rgba(47, 129, 247, 0.6);
+            transform: translateY(-2px);
         }
 
         .btn-whatsapp {
-            background: linear-gradient(90deg, #34d058 0%, #12b24a 100%);
+            background-color: rgba(46, 160, 67, 0.12);
+            color: #56d364;
+            border: 1px solid rgba(46, 160, 67, 0.3);
         }
 
-        .modal-overlay {
-            position: fixed;
-            inset: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: rgba(2, 6, 15, 0.75);
-            backdrop-filter: blur(8px);
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
-                        backdrop-filter 0.25s ease;
-            z-index: 1000;
-        }
-
-        .modal-overlay.active {
-            opacity: 1;
-            pointer-events: auto;
-        }
-
-        .modal {
-            background: linear-gradient(180deg, 
-                        rgba(255, 255, 255, 0.08) 0%,
-                        rgba(255, 255, 255, 0.03) 100%);
-            padding: 32px 28px;
-            border-radius: 20px;
-            min-width: 280px;
-            max-width: 90%;
-            text-align: center;
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            box-shadow: 0 24px 80px rgba(0, 0, 0, 0.8),
-                        0 0 0 1px rgba(255, 255, 255, 0.05),
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            color: var(--muted);
-            transform: scale(0.9) translateY(10px);
-            opacity: 0;
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-                        opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(20px) saturate(180%);
-        }
-
-        .modal-overlay.active .modal {
-            transform: scale(1) translateY(0);
-            opacity: 1;
-        }
-
-        .modal-icon {
-            width: 64px;
-            height: 64px;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 50%;
-            background: linear-gradient(135deg, 
-                        rgba(76, 201, 240, 0.2) 0%,
-                        rgba(107, 227, 155, 0.15) 100%);
-            border: 2px solid rgba(76, 201, 240, 0.3);
-            animation: checkmarkPulse 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .modal-icon i {
-            font-size: 32px;
-            color: var(--accent);
-            animation: checkmarkScale 0.5s cubic-bezier(0.4, 0, 0.2, 1) 0.1s both;
-        }
-
-        @keyframes checkmarkPulse {
-            0% {
-                transform: scale(0.8);
-                opacity: 0;
-            }
-            50% {
-                transform: scale(1.1);
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
-
-        @keyframes checkmarkScale {
-            0% {
-                transform: scale(0);
-            }
-            50% {
-                transform: scale(1.2);
-            }
-            100% {
-                transform: scale(1);
-            }
-        }
-
-        .modal p {
-            margin: 0 0 24px 0;
-            font-family: "Yekan", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Tahoma", "Arial", sans-serif;
-            font-weight: 600;
-            font-size: 18px;
-            line-height: 1.5;
-            letter-spacing: 0.01em;
-            color: #e8eef3;
-        }
-
-        .modal button {
-            background: linear-gradient(135deg, var(--accent) 0%, #3ba8d0 100%);
-            color: #06202a;
-            border: 0;
-            padding: 12px 32px;
-            border-radius: 12px;
-            cursor: pointer;
-            font-family: "Yekan", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Tahoma", "Arial", sans-serif;
-            font-weight: 600;
-            font-size: 15px;
-            letter-spacing: 0.02em;
-            line-height: 1.4;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 4px 16px rgba(76, 201, 240, 0.3),
-                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
-            min-width: 120px;
-        }
-
-        .modal button:hover {
+        .btn-whatsapp:hover {
+            background-color: rgba(46, 160, 67, 0.25);
+            border-color: rgba(46, 160, 67, 0.6);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(76, 201, 240, 0.4),
-                        0 0 0 1px rgba(255, 255, 255, 0.15) inset;
-            background: linear-gradient(135deg, #5dd0f5 0%, #4bb8e0 100%);
         }
 
-        .modal button:active {
-            transform: translateY(0);
-            box-shadow: 0 2px 8px rgba(76, 201, 240, 0.3),
-                        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+        .toast {
+            position: fixed;
+            bottom: 32px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background-color: var(--accent-green);
+            color: #000000;
+            padding: 14px 28px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 15px;
+            box-shadow: 0 8px 24px rgba(63, 185, 80, 0.4);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 1000;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        @media (max-width: 720px) {
-            .container {
-                margin: 30px 18px;
-                padding: 20px;
-            }
+        .toast svg {
+            width: 18px;
+            height: 18px;
+            fill: currentColor;
+        }
 
-            .logo {
-                width: 98px;
-                height: 98px;
-            }
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
 
-            .copy-icon {
-                width: 46px;
-                height: 46px;
-                min-width: 46px;
+        @media (max-width: 480px) {
+            .glass-card {
+                padding: 28px 20px;
             }
-
-            .info-box {
-                padding: 16px;
-                gap: 12px;
-                border-radius: 16px;
+            .grid-stats {
+                grid-template-columns: 1fr;
             }
-
-            .info-item {
-                padding: 14px 16px;
-                gap: 12px;
-                border-radius: 14px;
-            }
-
-            .info-item i {
-                width: 48px;
-                height: 48px;
-                min-width: 48px;
-                font-size: 20px;
-                border-radius: 12px;
-            }
-
-            .info-item p {
-                font-size: 14px;
-            }
-
-            .gb-value {
-                font-size: 13px;
-                padding: 2px 6px;
+            .action-links {
+                flex-direction: column;
             }
         }
     </style>
 </head>
-
 <body>
+
     <div class="container">
-        <div class="logo">
-            <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTumgBZSlZ1HxjNuj4oaHaPkR5EzlL9UQpOMA&s"
-                alt="لوگو ققنوس">
-        </div>
+        <div class="glass-card">
+            <div class="header">
+                <div class="avatar"><%= data.email.substring(0, 2) %></div>
+                <h1 class="title"><%= data.email %></h1>
+                <div class="subtitle">پنل کاربری اشتراک شما</div>
+                
+                <% if (data.enable) { %>
+                    <div class="status-badge status-active">وضعیت: فعال</div>
+                <% } else { %>
+                    <div class="status-badge status-inactive">وضعیت: غیرفعال</div>
+                <% } %>
+            </div>
 
-        <h3>شناسه <%= data.email %> خوش آمدید</h3>
+            <div class="copy-section">
+                <input type="text" id="subUrl" class="copy-input" value="<%= data.suburl %>" readonly>
+                <button class="copy-btn" onclick="copyUrl()">
+                    <svg viewBox="0 0 24 24"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+                    کپی لینک
+                </button>
+            </div>
 
-        <div class="info-box">
-            <div class="copy-container">
-                <textarea id="copy-textarea" rows="2"><%= data.suburl %></textarea>
-                <div class="copy-icon" onclick="copyToClipboard()">
-                    <i class="fas fa-copy"></i>
+            <%
+                const totalGB = (data.total / 1073741824).toFixed(2);
+                const usedGB = ((data.up + data.down) / 1073741824).toFixed(2);
+                const percentUsed = data.total > 0 ? Math.min(100, Math.round(((data.up + data.down) / data.total) * 100)) : 0;
+                const isDanger = percentUsed > 85;
+                
+                let remainingDays = "نامشخص";
+                let remainingDaysVal = -1;
+                try {
+                    const expiry = parseInt(data.expiryTime, 10);
+                    if (expiry === 0) {
+                        remainingDays = "بدون انقضا";
+                    } else if (expiry > Date.now()) {
+                        remainingDaysVal = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
+                        remainingDays = remainingDaysVal + " روز";
+                    } else {
+                        remainingDays = "منقضی شده";
+                    }
+                } catch(e) {}
+            %>
+
+            <div class="grid-stats">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20a2 2 0 0 0 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V10h14v10zm0-12H5V6h14v2zm-7 5h5v5h-5z"/></svg>
+                    </div>
+                    <div class="stat-label">زمان باقیمانده</div>
+                    <div class="stat-value">
+                        <% if (remainingDaysVal >= 0) { %>
+                            <%= remainingDaysVal %> <span class="stat-unit">روز</span>
+                        <% } else { %>
+                            <span style="font-size: 18px; font-family: var(--font-fa);"><%= remainingDays %></span>
+                        <% } %>
+                    </div>
+                </div>
+
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <svg viewBox="0 0 24 24"><path d="M13 2.05v3.03c3.39.49 6 3.39 6 6.92 0 .9-.22 1.76-.61 2.53l2.5 2.5c1.33-1.42 2.11-3.32 2.11-5.03 0-4.97-4.03-9-9-9zM12 19c-3.87 0-7-3.13-7-7 0-3.53 2.61-6.43 6-6.92V2.05c-5.06.5-9 4.76-9 9.95 0 5.52 4.47 10 9.99 10 3.31 0 6.24-1.61 8.06-4.09l-2.6-2.6C16.17 17.17 14.22 19 12 19z"/></svg>
+                    </div>
+                    <div class="stat-label">ترافیک مصرف شده</div>
+                    <div class="stat-value">
+                        <%= usedGB %> <span class="stat-unit">/ <%= data.total === 0 ? '∞' : totalGB %> GB</span>
+                    </div>
+                    <% if (data.total > 0) { %>
+                        <div class="progress-container">
+                            <div class="progress-bar <%= isDanger ? 'danger' : '' %>" style="width: 0%" data-target="<%= percentUsed %>%"></div>
+                        </div>
+                    <% } %>
                 </div>
             </div>
-        </div>
 
-        <div class="info-box">
-            <div class="info-item">
-                <i class="fas fa-hourglass-half"></i>
-                <p>وضعیت اکانت: <%= data.enable ? 'فعال' : 'غیرفعال' %></p>
+            <div class="action-links">
+                <% if (data.TELEGRAM_URL) { %>
+                <a href="<%= data.TELEGRAM_URL %>?text=سلام من شناسه <%= data.email %> هستم" target="_blank" class="btn-link btn-telegram">
+                    <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.19-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.18 3.44-.49.33-.93.5-1.33.49-.44-.01-1.28-.25-1.9-.45-.77-.25-1.38-.38-1.33-.8.03-.22.35-.45.98-.69 3.85-1.68 6.41-2.78 7.69-3.32 3.65-1.53 4.41-1.8 4.9-1.81.11 0 .35.03.5.15.13.1.17.24.18.35-.01.07-.01.21-.02.3z"/></svg>
+                    پشتیبانی تلگرام
+                </a>
+                <% } %>
+                
+                <% if (data.WHATSAPP_URL) { %>
+                <a href="<%= data.WHATSAPP_URL %>?text=سلام من شناسه <%= data.email %> هستم" target="_blank" class="btn-link btn-whatsapp">
+                    <svg viewBox="0 0 24 24"><path d="M19.05 4.91A9.816 9.816 0 0 0 12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38c1.45.8 3.08 1.22 4.79 1.22 5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.02zm-7.01 15.24c-1.48 0-2.93-.4-4.2-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.264 8.264 0 0 1-1.26-4.38c0-4.54 3.7-8.24 8.24-8.24 2.2 0 4.27.86 5.82 2.42a8.183 8.183 0 0 1 2.41 5.83c.02 4.54-3.68 8.23-8.22 8.23zm4.52-6.16c-.25-.12-1.47-.72-1.69-.81-.23-.08-.39-.12-.56.12-.17.25-.64.81-.79.98-.15.17-.3.19-.55.07-.25-.12-1.05-.39-2-1.24-.74-.66-1.23-1.47-1.38-1.72-.15-.25-.02-.38.11-.51.11-.11.25-.29.37-.43s.17-.25.25-.41c.08-.17.04-.31-.02-.43s-.56-1.34-.76-1.84c-.2-.48-.41-.42-.56-.43h-.48c-.17 0-.45.06-.69.32-.25.25-.94.92-.94 2.24s.96 2.6 1.1 2.78c.14.19 1.9 2.9 4.58 4.06.64.28 1.14.45 1.53.58.64.2 1.22.17 1.68.1.51-.08 1.47-.6 1.68-1.18.21-.58.21-1.08.15-1.18-.05-.1-.22-.16-.47-.28z"/></svg>
+                    پشتیبانی واتساپ
+                </a>
+                <% } %>
             </div>
-
-            <div class="info-item">
-                <i class="fas fa-calendar-alt"></i>
-                <p>
-                    روزهای باقیمانده:
-                    <%
-                    try {
-                        if (!data || typeof data.expiryTime === 'undefined') {
-                            throw new Error("data یا expiryTime تعریف نشده است.");
-                        }
-                        const expiryTime = parseInt(data.expiryTime, 10);
-                        if (isNaN(expiryTime)) {
-                            throw new Error("expiryTime یک عدد معتبر نیست.");
-                        }
-                        const currentTime = Date.now();
-                        if (expiryTime === 0) {
-                            %>
-                            بدون محدودیت
-                            <%
-                        } else if (expiryTime > currentTime) {
-                            const remainingDays = Math.floor((expiryTime - currentTime) / (1000 * 60 * 60 * 24));
-                            %>
-                            <%= remainingDays %> روز
-                            <%
-                        } else {
-                            %>
-                            منقضی شده
-                            <%
-                        }
-                    } catch (error) {
-                        console.error("خطا در محاسبه روزهای باقیمانده:", error.message);
-                        %>
-                        نامشخص
-                        <%
-                    }
-                    %>
-                </p>
-            </div>
-
-            <div class="info-item">
-                <i class="fas fa-chart-pie"></i>
-                <p>
-                    حجم مصرفی:
-                    <span class="gb-value"><%= ((data.up + data.down) / 1_073_741_824).toFixed(2) %> GB</span>
-                </p>
-            </div>
-
-            <div class="info-item">
-                <i class="fas fa-database"></i>
-                <p>
-                    حجم خریداری شده:
-                    <span class="gb-value"><%= (data.total / 1_073_741_824).toFixed(2) %> GB</span>
-                </p>
-            </div>
-        </div>
-
-        <div class="action-buttons">
-            <a href="<%= data.TELEGRAM_URL %>?text=سلام من شناسه <%= data.email %> هستم" class="action-btn"
-                style="background: linear-gradient(145deg, #007BFF, #0056b3);">
-                <i class="fas fa-headset"></i>
-                پشتیبانی در تلگرام
-            </a>
         </div>
     </div>
 
-    <div class="modal-overlay" id="modal-overlay" onclick="closeModalOnOverlay(event)">
-        <div class="modal" onclick="event.stopPropagation()">
-            <div class="modal-icon">
-                <i class="fas fa-check"></i>
-            </div>
-            <p>لینک شما کپی شد</p>
-            <button onclick="closeModal()">باشه</button>
-        </div>
+    <div id="toast" class="toast">
+        <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        لینک با موفقیت کپی شد!
     </div>
 
     <script>
-        let modalTimeout = null;
-
-        async function copyToClipboard() {
-            const textarea = document.getElementById("copy-textarea");
-            const textToCopy = textarea.value;
-
+        function copyUrl() {
+            const input = document.getElementById('subUrl');
+            input.select();
+            input.setSelectionRange(0, 99999);
+            
             try {
-                await navigator.clipboard.writeText(textToCopy);
-                showModal();
+                navigator.clipboard.writeText(input.value).then(() => {
+                    showToast();
+                }).catch(() => {
+                    document.execCommand('copy');
+                    showToast();
+                });
             } catch (err) {
-                // Fallback for older browsers
-                const tempTextarea = document.createElement("textarea");
-                tempTextarea.value = textToCopy;
-                tempTextarea.style.position = "fixed";
-                tempTextarea.style.opacity = "0";
-                document.body.appendChild(tempTextarea);
-                tempTextarea.select();
-                document.execCommand("copy");
-                document.body.removeChild(tempTextarea);
-
-                showModal();
+                document.execCommand('copy');
+                showToast();
             }
         }
 
-        function showModal() {
-            const modal = document.getElementById("modal-overlay");
-            modal.classList.add("active");
-            
-            // Clear any existing timeout
-            if (modalTimeout) {
-                clearTimeout(modalTimeout);
-            }
-            
-            // Auto-close after 3 seconds
-            modalTimeout = setTimeout(() => {
-                closeModal();
+        function showToast() {
+            const toast = document.getElementById('toast');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
             }, 3000);
         }
 
-        function closeModal() {
-            const modal = document.getElementById("modal-overlay");
-            modal.classList.remove("active");
-            
-            if (modalTimeout) {
-                clearTimeout(modalTimeout);
-                modalTimeout = null;
-            }
-        }
-
-        function closeModalOnOverlay(event) {
-            if (event.target === event.currentTarget) {
-                closeModal();
-            }
-        }
-
-        // Close modal on Escape key
-        document.addEventListener("keydown", function(event) {
-            if (event.key === "Escape") {
-                closeModal();
-            }
+        // Animate progress bars on load
+        document.addEventListener("DOMContentLoaded", () => {
+            setTimeout(() => {
+                const bars = document.querySelectorAll('.progress-bar');
+                bars.forEach(bar => {
+                    bar.style.width = bar.getAttribute('data-target');
+                });
+            }, 300);
         });
     </script>
 </body>
-
 </html>

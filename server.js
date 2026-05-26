@@ -1,3 +1,4 @@
+process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 import express from "express";
 import fetch from "node-fetch";
 import qs from "querystring";
@@ -53,7 +54,8 @@ const {
     WHATSAPP_URL = '',
     Backup_link: BACKUP_LINK = '',
     TOTP_SECRET = '',
-    TWO_FACTOR = 'false'
+    TWO_FACTOR = 'false',
+    API_TOKEN = ''
 } = config;
 
 const convertToJalali = (timestamp) => {
@@ -85,42 +87,56 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const { subId: targetSubId } = req.params;
         const userAgent = req.headers['user-agent'] || '';
 
-        let loginPayload = {
-            username: USERNAME,
-            password: PASSWORD
-        };
+        let apiHeaders = { "Accept": "application/json" };
+        let suburl_content;
 
-        if (TWO_FACTOR === 'true' && TOTP_SECRET) {
-            const currentTOTP = speakeasy.totp({
-                secret: TOTP_SECRET,
-                encoding: 'base32',
-                window: 1
-            });
-            loginPayload.twoFactorCode = currentTOTP;
+        if (API_TOKEN) {
+            apiHeaders["Authorization"] = `Bearer ${API_TOKEN}`;
+            suburl_content = await fetchUrlContent(`${SUBSCRIPTION}${targetSubId}`);
+        } else {
+            let loginPayload = {
+                username: USERNAME,
+                password: PASSWORD
+            };
+
+            if (TWO_FACTOR === 'true' && TOTP_SECRET) {
+                const currentTOTP = speakeasy.totp({
+                    secret: TOTP_SECRET,
+                    encoding: 'base32',
+                    window: 1
+                });
+                loginPayload.twoFactorCode = currentTOTP;
+            }
+
+            const [loginResponse, suburlContent] = await Promise.all([
+                fetchWithRetry(`${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(loginPayload),
+                }),
+                fetchUrlContent(`${SUBSCRIPTION}${targetSubId}`)
+            ]);
+            
+            suburl_content = suburlContent;
+
+            if (!loginResponse.ok) throw new Error(`Login request failed. Status: ${loginResponse.status}`);
+
+            const loginResult = await loginResponse.json();
+            if (!loginResult.success) throw new Error(loginResult.msg || "Login unsuccessful");
+
+            const cookies = loginResponse.headers.getSetCookie ? loginResponse.headers.getSetCookie() : [loginResponse.headers.get("set-cookie") || ""];
+            const cookie = cookies.map(c => c ? c.split(';')[0] : "").filter(Boolean).join('; ');
+            apiHeaders["cookie"] = cookie;
         }
 
-
-        const [loginResponse, suburl_content] = await Promise.all([
-            fetchWithRetry(`${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/login`, {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: qs.stringify(loginPayload),
-            }),
-            fetchUrlContent(`${SUBSCRIPTION}${targetSubId}`)
-        ]);
-
-        if (!loginResponse.ok) throw new Error("Login request failed.");
-
-        const loginResult = await loginResponse.json();
-        if (!loginResult.success) throw new Error(loginResult.msg || "Login unsuccessful");
-
-        const cookie = loginResponse.headers.get("set-cookie");
         const listResponse = await fetchWithRetry(`${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/list`, {
             method: "GET",
-            headers: { cookie, "Accept": "application/json" }
+            headers: apiHeaders
         });
 
         const listResult = await listResponse.json();
+        if (!listResult.success) throw new Error(listResult.msg || "Failed to fetch inbounds list");
+
         const foundClient = listResult.obj
             .flatMap(inbound => JSON.parse(inbound.settings).clients)
             .find(client => client.subId === targetSubId);
@@ -130,7 +146,7 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const trafficResponse = await fetchWithRetry(
             `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/getClientTraffics/${foundClient.email}`, {
             method: "GET",
-            headers: { cookie, "Accept": "application/json" }
+            headers: apiHeaders
         });
 
         const trafficData = await trafficResponse.json();
