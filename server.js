@@ -185,6 +185,18 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         });
 
         const trafficData = await trafficResponse.json();
+        
+        if (!trafficData.success || !trafficData.obj) {
+            trafficData.obj = {
+                up: 0,
+                down: 0,
+                total: foundClient.totalGB || 0,
+                expiryTime: foundClient.expiryTime || 0,
+                enable: foundClient.enable !== false,
+                email: foundClient.email
+            };
+        }
+
         const expiryTimeJalali = convertToJalali(trafficData.obj.expiryTime);
         const suburl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
         const suburl_base64 = Buffer.from(suburl).toString('base64');
