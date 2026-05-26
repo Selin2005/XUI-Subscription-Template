@@ -9,15 +9,26 @@ NC='\033[0m'
 PROJECT_DIR="/opt/DVHOST"
 SERVICE_FILE="/etc/systemd/system/DVHOST_TEMPLATE.service"
 VERSION='1.0.3'
+SAVED_PROXY=""
 [[ $EUID -ne 0 ]] && echo -e "${RED}Fatal error: ${plain} Please run this script with root privilege \n " && exit 1
 
 set_proxy() {
+    local default_msg=" (e.g., http://127.0.0.1:2080)"
+    if [ -n "$SAVED_PROXY" ]; then
+        default_msg=" [Default: $SAVED_PROXY]"
+    fi
     echo -e "${YELLOW}Do you want to use a proxy for the installation process? (y/n) [n]: ${NC}"
     read -r use_proxy
     if [[ "$use_proxy" =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Enter your proxy URL (e.g., http://127.0.0.1:2080): ${NC}"
+        echo -e "${YELLOW}Enter your proxy URL${default_msg}: ${NC}"
         read -r proxy_url
+        if [ -z "$proxy_url" ] && [ -n "$SAVED_PROXY" ]; then
+            proxy_url="$SAVED_PROXY"
+        fi
         if [ -n "$proxy_url" ]; then
+            if [ "$proxy_url" != "$SAVED_PROXY" ]; then
+                sudo sed -i "s|^SAVED_PROXY=\".*\"|SAVED_PROXY=\"$proxy_url\"|" "$0"
+            fi
             export http_proxy="$proxy_url"
             export https_proxy="$proxy_url"
             export all_proxy="$proxy_url"
@@ -87,8 +98,18 @@ clone_project() {
     sudo rm -rf /tmp/XUI-Subscription-Template-master /tmp/xui-template.zip
     
     if [ -f "/tmp/dvhost.config.bak" ]; then
-        sudo mv /tmp/dvhost.config.bak "$PROJECT_DIR/dvhost.config"
-        echo -e "${GREEN}dvhost.config restored successfully.${NC}"
+        echo "Restoring and merging config..."
+        sudo cp "$PROJECT_DIR/dvhost.config" "/tmp/dvhost.config.new"
+        
+        while IFS= read -r line; do
+            if [[ "$line" =~ ^[[:space:]]*[^#] ]] && [[ "$line" == *"="* ]]; then
+                key=$(echo "$line" | cut -d'=' -f1)
+                val=$(echo "$line" | cut -d'=' -f2- | sed -e 's/|/\\|/g' -e 's/&/\\&/g')
+                sudo sed -i "s|^$key=.*|$key=$val|" "$PROJECT_DIR/dvhost.config"
+            fi
+        done < "/tmp/dvhost.config.bak"
+        
+        echo -e "${GREEN}dvhost.config merged and restored successfully.${NC}"
     fi
 
     cd "$PROJECT_DIR" || exit
