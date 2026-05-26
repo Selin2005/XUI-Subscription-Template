@@ -102,10 +102,24 @@ clone_project() {
         sudo cp "$PROJECT_DIR/dvhost.config" "/tmp/dvhost.config.new"
         
         while IFS= read -r line; do
-            if [[ "$line" =~ ^[[:space:]]*[^#] ]] && [[ "$line" == *"="* ]]; then
-                key=$(echo "$line" | cut -d'=' -f1)
-                val=$(echo "$line" | cut -d'=' -f2- | sed -e 's/|/\\|/g' -e 's/&/\\&/g')
-                sudo sed -i "s|^$key=.*|$key=$val|" "$PROJECT_DIR/dvhost.config"
+            # Check if line looks like a variable assignment (optionally commented)
+            if [[ "$line" =~ ^[[:space:]]*(#?)[[:space:]]*([A-Za-z0-9_]+)=(.*) ]]; then
+                is_comment="${BASH_REMATCH[1]}"
+                key="${BASH_REMATCH[2]}"
+                val="${BASH_REMATCH[3]}"
+                
+                # Escape sed characters in value
+                val_escaped=$(echo "$val" | sed -e 's/|/\\|/g' -e 's/&/\\&/g')
+
+                if [ -n "$is_comment" ]; then
+                    # It was commented in the backup.
+                    # Find the key in the new config (whether commented or not) and replace with comment
+                    sudo sed -i -E "s|^[[:space:]]*#?[[:space:]]*$key=.*|# $key=$val_escaped|" "$PROJECT_DIR/dvhost.config"
+                else
+                    # It was uncommented in the backup.
+                    # Replace in the new config (whether commented or not)
+                    sudo sed -i -E "s|^[[:space:]]*#?[[:space:]]*$key=.*|$key=$val_escaped|" "$PROJECT_DIR/dvhost.config"
+                fi
             fi
         done < "/tmp/dvhost.config.bak"
         
