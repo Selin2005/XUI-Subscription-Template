@@ -11,6 +11,7 @@ import http from 'http';
 import speakeasy from 'speakeasy';
 
 const app = express();
+app.set('trust proxy', true);
 
 const CONFIG_FILE_NAME = "dvhost.config";
 const BROWSER_KEYWORDS = ['Mozilla', 'Chrome', 'Safari', 'Edge', 'Opera', 'Firefox', 'Trident', 'WebKit'];
@@ -152,6 +153,9 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const trafficData = await trafficResponse.json();
         const expiryTimeJalali = convertToJalali(trafficData.obj.expiryTime);
         const suburl = `${req.protocol}://${req.get('host')}${req.originalUrl}`;
+        const suburl_base64 = Buffer.from(suburl).toString('base64');
+        const decodedContent = Buffer.from(suburl_content, 'base64').toString('utf-8');
+        const configs = decodedContent.split('\n').filter(line => line.trim().length > 0);
 
         if (isBrowserRequest(userAgent)) {
             return res.render("sub", {
@@ -159,7 +163,9 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
                     ...trafficData.obj,
                     expiryTimeJalali,
                     suburl,
+                    suburl_base64,
                     suburl_content,
+                    configs,
                     get_backup_link: BACKUP_LINK,
                     WHATSAPP_URL,
                     TELEGRAM_URL,
