@@ -179,19 +179,19 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         }
 
         // Info Config Generation (Dummy Config)
-        const totalGB = trafficData.obj.total === 0 ? "نامحدود" : (trafficData.obj.total / 1073741824).toFixed(2) + " GB";
-        const usedGB = ((trafficData.obj.up + trafficData.obj.down) / 1073741824).toFixed(2) + " GB";
-        let remainingDays = "نامحدود";
+        const totalGB = trafficData.obj.total === 0 ? "∞" : (trafficData.obj.total / 1073741824).toFixed(2) + "GB";
+        const usedGB = ((trafficData.obj.up + trafficData.obj.down) / 1073741824).toFixed(2) + "GB";
+        let remainingDays = "∞";
         const expiry = parseInt(trafficData.obj.expiryTime, 10);
         if (expiry > 0) {
             if (expiry > Date.now()) {
                 remainingDays = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24)) + " روز";
             } else {
-                remainingDays = "منقضی شده";
+                remainingDays = "منقضی";
             }
         }
         
-        const dummyRemark = encodeURIComponent(`📊 مصرف: ${usedGB} از ${totalGB} | ⏳ زمان: ${remainingDays}`);
+        const dummyRemark = encodeURIComponent(`📊 ${usedGB} / ${totalGB} | ⏳ ${remainingDays}`);
         const dummyConfig = `vless://00000000-0000-0000-0000-000000000000@1.1.1.1:80?type=tcp&security=none#${dummyRemark}`;
 
         const combinedContent = [dummyConfig, BACKUP_LINK, ...configs]
