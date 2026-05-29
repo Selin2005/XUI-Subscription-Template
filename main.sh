@@ -66,7 +66,7 @@ install_dependencies() {
     echo "Installing Node.js and required tools..."
     curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo -E apt update
-    sudo -E apt install -y nodejs npm git
+    sudo -E apt install -y nodejs git
 }
 
 clone_project() {
