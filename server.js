@@ -183,18 +183,28 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
 
         let trafficResponse;
         try {
+            // Try the new 3X-UI standard endpoint
             trafficResponse = await fetchWithRetry(
-                `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/getClientTraffics/${foundClient.email}`, {
+                `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/clients/traffic/${foundClient.email}`, {
                 method: "GET",
                 headers: apiHeaders
             });
-        } catch (err) {
-            // Fallback for newer 3X-UI versions which use clientTraffics instead of getClientTraffics
-            trafficResponse = await fetchWithRetry(
-                `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/clientTraffics/${foundClient.email}`, {
-                method: "GET",
-                headers: apiHeaders
-            });
+        } catch (err1) {
+            try {
+                // Fallback to Sanaei / Older 3X-UI standard
+                trafficResponse = await fetchWithRetry(
+                    `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/getClientTraffics/${foundClient.email}`, {
+                    method: "GET",
+                    headers: apiHeaders
+                });
+            } catch (err2) {
+                // Final fallback to alternate older 3X-UI standard
+                trafficResponse = await fetchWithRetry(
+                    `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/clientTraffics/${foundClient.email}`, {
+                    method: "GET",
+                    headers: apiHeaders
+                });
+            }
         }
 
         const trafficData = await trafficResponse.json();
