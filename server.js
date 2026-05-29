@@ -109,7 +109,7 @@ app.set("view engine", "ejs");
 const fetchWithRetry = async (url, options, retries = 3) => {
     try {
         const response = await fetch(url, options);
-        if (!response.ok) throw new Error(`Request failed with status ${response.status}`);
+        if (!response.ok) throw new Error(`Request failed with status ${response.status} for URL: ${url}`);
         return response;
     } catch (error) {
         if (retries <= 0) throw error;
@@ -181,11 +181,21 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
 
         if (!foundClient) return res.status(404).json({ message: "No object found with the specified subId." });
 
-        const trafficResponse = await fetchWithRetry(
-            `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/getClientTraffics/${foundClient.email}`, {
-            method: "GET",
-            headers: apiHeaders
-        });
+        let trafficResponse;
+        try {
+            trafficResponse = await fetchWithRetry(
+                `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/getClientTraffics/${foundClient.email}`, {
+                method: "GET",
+                headers: apiHeaders
+            });
+        } catch (err) {
+            // Fallback for newer 3X-UI versions which use clientTraffics instead of getClientTraffics
+            trafficResponse = await fetchWithRetry(
+                `${PROTOCOL}://${dvhost_host}:${dvhost_port}/${dvhost_path}/panel/api/inbounds/clientTraffics/${foundClient.email}`, {
+                method: "GET",
+                headers: apiHeaders
+            });
+        }
 
         const trafficData = await trafficResponse.json();
         
