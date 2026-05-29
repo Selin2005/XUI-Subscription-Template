@@ -173,7 +173,10 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         if (!listResult.success) throw new Error(listResult.msg || "Failed to fetch inbounds list");
 
         const foundClient = listResult.obj
-            .flatMap(inbound => JSON.parse(inbound.settings).clients)
+            .flatMap(inbound => {
+                const settings = typeof inbound.settings === 'string' ? JSON.parse(inbound.settings) : inbound.settings;
+                return settings.clients || [];
+            })
             .find(client => client.subId === targetSubId);
 
         if (!foundClient) return res.status(404).json({ message: "No object found with the specified subId." });
