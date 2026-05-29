@@ -64,9 +64,9 @@ loader(){
 
 install_dependencies() {
     echo "Installing Node.js and required tools..."
-    curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+    curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
     sudo -E apt update
-    sudo -E apt install -y nodejs git
+    sudo -E apt install -y nodejs npm git
 }
 
 clone_project() {
@@ -136,7 +136,10 @@ install_project_dependencies() {
         npm config set proxy $http_proxy
         npm config set https-proxy $https_proxy
     fi
-    npm install
+    if ! npm install; then
+        echo -e "${RED}Error: npm install failed! Please check the error messages above.${NC}"
+        exit 1
+    fi
 }
 
 create_service() {
