@@ -255,7 +255,18 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
         const expiry = parseInt(trafficData.obj.expiryTime, 10);
         if (expiry > 0) {
             if (expiry > Date.now()) {
-                remainingDays = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24)) + " روز";
+                const diffMs = expiry - Date.now();
+                const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                
+                if (diffDays > 0) {
+                    remainingDays = diffDays + " روز";
+                } else if (diffHours > 0) {
+                    remainingDays = `${diffHours} ساعت و ${diffMinutes} دقیقه`;
+                } else {
+                    remainingDays = `${diffMinutes} دقیقه`;
+                }
             } else {
                 remainingDays = "منقضی";
             }
@@ -275,9 +286,16 @@ app.get(`/${SUBSCRIPTION.split('/')[3]}/:subId`, async (req, res) => {
 
         const lowTimeDays = parseInt(LOW_TIME_WARNING_DAYS, 10) || 0;
         if (lowTimeDays > 0 && expiry > Date.now()) {
-            const remainingDaysNumber = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
-            if (remainingDaysNumber >= 0 && remainingDaysNumber <= lowTimeDays) {
-                const timeWarningRemark = encodeURIComponent(`⏳ هشدار: تنها ${remainingDaysNumber} روز تا پایان اشتراک مانده!`);
+            const diffMs = expiry - Date.now();
+            const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+            const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+
+            if (diffDays >= 0 && diffDays <= lowTimeDays) {
+                let timeStr = diffDays > 0 ? `${diffDays} روز` : 
+                              (diffHours > 0 ? `${diffHours} ساعت و ${diffMinutes} دقیقه` : `${diffMinutes} دقیقه`);
+                
+                const timeWarningRemark = encodeURIComponent(`⏳ هشدار: تنها ${timeStr} تا پایان اشتراک مانده!`);
                 warningConfigs.push(`vless://00000000-0000-0000-0000-000000000002@1.1.1.1:80?type=tcp&security=none#${timeWarningRemark}`);
             }
         }

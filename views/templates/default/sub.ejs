@@ -831,17 +831,26 @@
                 const percentUsed = data.total > 0 ? Math.min(100, Math.round(((data.up + data.down) / data.total) * 100)) : 0;
                 const isDanger = percentUsed > 85;
                 
-                let remainingDays = "نامشخص";
-                let remainingDaysVal = -1;
+                let remainingDaysHtml = '<span style="font-size: 18px; font-family: var(--font-fa);">نامشخص</span>';
                 try {
                     const expiry = parseInt(data.expiryTime, 10);
                     if (expiry === 0) {
-                        remainingDays = "بدون انقضا";
+                        remainingDaysHtml = '<span style="font-size: 18px; font-family: var(--font-fa);">بدون انقضا</span>';
                     } else if (expiry > Date.now()) {
-                        remainingDaysVal = Math.floor((expiry - Date.now()) / (1000 * 60 * 60 * 24));
-                        remainingDays = remainingDaysVal + " روز";
+                        const diffMs = expiry - Date.now();
+                        const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+                        const diffHours = Math.floor((diffMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                        const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+                        
+                        if (diffDays > 0) {
+                            remainingDaysHtml = `${diffDays} <span class="stat-unit">روز</span>`;
+                        } else if (diffHours > 0) {
+                            remainingDaysHtml = `<span style="font-size: 18px; font-family: var(--font-fa);">${diffHours} ساعت و ${diffMinutes} دقیقه</span>`;
+                        } else {
+                            remainingDaysHtml = `<span style="font-size: 18px; font-family: var(--font-fa);">${diffMinutes} دقیقه</span>`;
+                        }
                     } else {
-                        remainingDays = "منقضی شده";
+                        remainingDaysHtml = '<span style="font-size: 18px; font-family: var(--font-fa);">منقضی شده</span>';
                     }
                 } catch(e) {}
             %>
@@ -853,11 +862,7 @@
                     </div>
                     <div class="stat-label">زمان باقیمانده</div>
                     <div class="stat-value">
-                        <% if (remainingDaysVal >= 0) { %>
-                            <%= remainingDaysVal %> <span class="stat-unit">روز</span>
-                        <% } else { %>
-                            <span style="font-size: 18px; font-family: var(--font-fa);"><%= remainingDays %></span>
-                        <% } %>
+                        <%- remainingDaysHtml %>
                     </div>
                 </div>
 
